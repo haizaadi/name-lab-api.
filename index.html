@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090d17">
+<title>NAME LAB — Control Center</title>
+<style>
+:root{color-scheme:dark;--bg:#080b13;--panel:#111827;--panel2:#151f31;--line:#26334a;--muted:#94a3b8;--text:#edf3ff;--purple:#8b7cff;--cyan:#5eead4;--green:#4ade80;--red:#fb7185;--amber:#fbbf24}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% -10%,#292052 0,transparent 38%),radial-gradient(ellipse at 95% 20%,#10303a 0,transparent 28%),var(--bg);color:var(--text);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+.shell{max-width:1180px;margin:auto;padding:26px 18px 60px}.top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:28px}.logo{font-size:20px;font-weight:950;letter-spacing:2px}.logo b{color:var(--purple)}.topright{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.badge{border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--muted);font-size:11px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#64748b;margin-right:6px}.dot.ok{background:var(--green);box-shadow:0 0 10px #4ade8077}.dot.bad{background:var(--red)}
+.hero{margin:0 0 22px}.eyebrow{color:#b9b1ff;text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:800}.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.05;margin:8px 0}.hero p{color:var(--muted);max-width:720px;margin:0}
+.layout{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:15px}.card{grid-column:span 6;background:linear-gradient(145deg,#141d2d,#0d1421);border:1px solid var(--line);border-radius:17px;padding:18px;min-width:0;box-shadow:0 16px 45px #0003}.wide{grid-column:span 12}.third{grid-column:span 4}
+.cardhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.card h2{font-size:15px;margin:0}.num{color:#9a8cff;font:700 11px ui-monospace,monospace}
+label{display:block;color:#c7d2e5;font-size:12px;font-weight:650;margin:11px 0 6px}input,select,textarea{width:100%;background:#090f1b;color:var(--text);border:1px solid #2a3850;border-radius:10px;padding:11px 12px;font:inherit;outline:none;min-width:0}input:focus,select:focus,textarea:focus{border-color:var(--purple);box-shadow:0 0 0 3px #8b7cff1c}textarea{min-height:100px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}button{border:0;border-radius:10px;padding:10px 14px;background:linear-gradient(110deg,#8271ff,#5c8cff);color:white;font-weight:800;font-size:12px;cursor:pointer}button.secondary{background:#202c40;border:1px solid #34445f;color:#e5edff}button.ghost{background:transparent;border:1px solid #34445f;color:#cbd5e1}button:disabled{opacity:.45;cursor:not-allowed}
+.hint{font-size:11px;color:var(--muted);margin-top:7px}.status{border:1px solid var(--line);background:#0a111e;border-radius:10px;padding:10px 12px;margin-top:12px;color:#cbd5e1;font-size:12px;overflow-wrap:anywhere}.status.ok{border-color:#23634c;color:#a7f3d0}.status.err{border-color:#713747;color:#fecdd3}.status.warn{border-color:#705b2b;color:#fde68a}
+.checks{display:flex;gap:7px;flex-wrap:wrap}.check{display:flex;align-items:center;gap:6px;background:#192438;border:1px solid #2a3850;border-radius:9px;padding:7px 9px;font-size:11px;color:#dce7f8}.check input{width:auto;margin:0;accent-color:var(--purple)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.stat{background:#0b1220;border:1px solid var(--line);border-radius:10px;padding:10px}.stat strong{font-size:19px;display:block}.stat span{font-size:10px;color:var(--muted)}
+.results{max-height:300px;overflow:auto;margin-top:10px;border:1px solid var(--line);border-radius:10px}.item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 11px;border-bottom:1px solid #202c40;font:12px ui-monospace,monospace}.item:last-child{border-bottom:0}.pill{font:800 9px ui-sans-serif,sans-serif;padding:4px 7px;border-radius:99px;background:#27334b;color:#c7d2fe;white-space:nowrap}.pill.valid{background:#123b31;color:#86efac}.pill.invalid{background:#482331;color:#fda4af}.pill.unknown{background:#44371b;color:#fde68a}
+.notice{border-left:3px solid var(--cyan);background:#0c2024;padding:10px 12px;border-radius:7px;color:#b8e9e5;font-size:11px;margin-top:12px}.footer{margin-top:22px;color:#718096;font-size:11px;text-align:center}
+@media(max-width:800px){.card,.third{grid-column:span 12}.top{align-items:flex-start;flex-direction:column}.row3{grid-template-columns:1fr 1fr}.shell{padding:20px 13px 45px}}
+</style></head>
+<body><main class="shell">
+<header class="top"><div class="logo">NAME <b>LAB</b></div><div class="topright"><span class="badge">CONTROL CENTER · v2.0</span><span class="badge"><i class="dot" id="apiDot"></i><span id="apiState">API NOT TESTED</span></span></div></header>
+<section class="hero"><div class="eyebrow">Username workspace</div><h1>Build. Validate. Organize.</h1><p>Tạo danh sách username, kiểm tra cú pháp qua backend của anh, quản lý file TXT và cấu hình kết nối từ một giao diện.</p></section>
+<div class="layout">
+<section class="card wide">
+ <div class="cardhead"><h2>Backend connection</h2><span class="num">01 / API</span></div>
+ <label for="backendUrl">Backend URL</label><input id="backendUrl" type="url" placeholder="https://your-service.onrender.com">
+ <div class="btns"><button id="saveUrl">Save URL</button><button class="secondary" id="testApi">Test connection</button><button class="ghost" id="clearUrl">Clear</button></div>
+ <div id="apiMessage" class="status">Nhập URL backend FastAPI của anh rồi chọn Test connection. URL được lưu trong localStorage của trình duyệt.</div>
+ <div class="hint">API endpoints được frontend sử dụng: GET /health và POST /validate.</div>
+</section>
+<section class="card">
+ <div class="cardhead"><h2>Username generator</h2><span class="num">02 / CREATE</span></div>
+ <div class="row">
+  <div><label for="platform">Platform</label><select id="platform"><option value="discord">Discord</option><option value="tiktok">TikTok</option><option value="generic">Generic</option></select></div>
+  <div><label for="amount">Quantity</label><input id="amount" type="number" min="1" max="500" value="100"></div>
+ </div>
+ <label>Username format</label><div class="checks">
+  <label class="check"><input type="checkbox" class="kind" value="3l" checked>3L</label>
+  <label class="check"><input type="checkbox" class="kind" value="4l" checked>4L</label>
+  <label class="check"><input type="checkbox" class="kind" value="3c">3C</label>
+  <label class="check"><input type="checkbox" class="kind" value="4c">4C</label>
+  <label class="check"><input type="checkbox" class="kind" value="word">Meaningful</label>
+ </div>
+ <div class="row">
+  <div><label for="style">Style</label><select id="style"><option value="mix">Mixed</option><option value="letters">Letters only</option><option value="digits">Letters + digits</option><option value="symbols">With . or _</option></select></div>
+  <div><label for="prefix">Prefix (optional)</label><input id="prefix" maxlength="8" placeholder="e.g. x"></div>
+ </div>
+ <div class="btns"><button id="generate">Generate</button><button class="secondary" id="copyNames">Copy list</button><button class="ghost" id="exportNames">Export TXT</button></div>
+ <div class="stats"><div class="stat"><strong id="genCount">0</strong><span>GENERATED</span></div><div class="stat"><strong id="validCount">—</strong><span>VALID FORMAT</span></div><div class="stat"><strong id="unknownCount">—</strong><span>AVAILABILITY</span></div></div>
+</section>
+<section class="card">
+ <div class="cardhead"><h2>Username checker</h2><span class="num">03 / VALIDATE</span></div>
+ <label for="names">Usernames — one per line</label><textarea id="names" placeholder="nova&#10;name_01&#10;cool.name"></textarea>
+ <label for="namesFile">Import username TXT</label><input id="namesFile" type="file" accept=".txt,text/plain">
+ <div class="btns"><button id="checkNames">Check via backend</button><button class="secondary" id="localCheck">Local format check</button><button class="ghost" id="clearNames">Clear</button></div>
+ <div id="checkMessage" class="status">Kết quả availability sẽ là UNKNOWN nếu backend không tích hợp nguồn xác minh chính thức.</div>
+ <div id="nameResults" class="results" hidden></div>
+ <div class="notice">VALID FORMAT không có nghĩa username còn trống. HIT/TAKEN chỉ được hiển thị khi có nguồn xác minh hợp lệ; bản backend mẫu không tự suy đoán availability.</div>
+</section>
+<section class="card">
+ <div class="cardhead"><h2>Proxy manager</h2><span class="num">04 / IMPORT</span></div>
+ <label for="proxies">Proxy list</label><textarea id="proxies" placeholder="host:port&#10;http://host:port&#10;user:pass@host:port"></textarea>
+ <label for="proxyFile">Import proxy TXT</label><input id="proxyFile" type="file" accept=".txt,text/plain">
+ <div class="btns"><button id="parseProxy">Validate proxy format</button><button class="secondary" id="exportProxy">Export proxy TXT</button><button class="ghost" id="clearProxy">Clear</button></div>
+ <div id="proxyMessage" class="status">Chưa có proxy được nạp.</div>
+ <div class="notice">Bản này chỉ kiểm tra cú pháp và quản lý danh sách proxy. Không kiểm tra LIVE/DEAD, không xoay proxy và không dùng proxy để vượt giới hạn hoặc chống cơ chế bảo vệ của nền tảng.</div>
+</section>
+<section class="card">
+ <div class="cardhead"><h2>Results & export</h2><span class="num">05 / OUTPUT</span></div>
+ <div class="row">
+  <div><label for="filter">Filter</label><select id="filter"><option value="all">All results</option><option value="valid">Valid format</option><option value="invalid">Invalid format</option><option value="unknown">Unknown availability</option></select></div>
+  <div><label for="exportType">Export type</label><select id="exportType"><option value="all">All usernames</option><option value="valid">Valid format only</option><option value="invalid">Invalid format only</option></select></div>
+ </div>
+ <div class="btns"><button id="exportResults">Export results CSV</button><button class="secondary" id="copyResults">Copy visible results</button></div>
+ <div id="summary" class="status">Chưa có kết quả.</div>
+ <div id="allResults" class="results" hidden></div>
+</section>
+<section class="card">
+ <div class="cardhead"><h2>Platform notes</h2><span class="num">06 / INFO</span></div>
+ <p class="hint">Discord và TikTok có quy tắc username riêng, có thể thay đổi. Backend mẫu chỉ kiểm tra cú pháp cơ bản.</p>
+ <ul class="hint"><li>Discord: kiểm tra cơ bản 2–32 ký tự, chữ thường, số, dấu chấm và gạch dưới.</li><li>TikTok: kiểm tra cơ bản 2–24 ký tự, chữ, số, dấu chấm và gạch dưới.</li><li>Generic: chữ, số, dấu . _ - trong khoảng 2–32 ký tự.</li></ul>
+ <p class="hint">Không nhập token, cookie hoặc thông tin đăng nhập nền tảng vào công cụ.</p>
+</section>
+</div><div class="footer">NAME LAB · Frontend + FastAPI · Local browser settings</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let generated=[], results=[];
+const WORDS=['nova','vex','luna','echo','zen','nox','aero','kairo','mira','onyx','pixel','orbit','frost','dawn','void','raven','aura','zenith'];
+const LETTERS='abcdefghijklmnopqrstuvwxyz', ALNUM='abcdefghijklmnopqrstuvwxyz0123456789';
+function backend(){return $('backendUrl').value.trim().replace(/\/+$/,'')}
+function setApi(ok,msg){$('apiDot').className='dot '+(ok?'ok':'bad');$('apiState').textContent=ok?'API ONLINE':'API OFFLINE';$('apiMessage').className='status '+(ok?'ok':'err');$('apiMessage').textContent=msg}
+function saveUrl(){const u=backend();if(!u){$('apiMessage').textContent='Hãy nhập Backend URL.';return}try{new URL(u);localStorage.setItem('nameLabBackend',u);$('apiMessage').textContent='Đã lưu URL: '+u}catch{$('apiMessage').textContent='URL không hợp lệ.'}}
+$('saveUrl').onclick=saveUrl;
+$('clearUrl').onclick=()=>{localStorage.removeItem('nameLabBackend');$('backendUrl').value='';$('apiDot').className='dot';$('apiState').textContent='API NOT TESTED';$('apiMessage').textContent='Đã xóa URL đã lưu.'};
+$('testApi').onclick=async()=>{const u=backend();if(!u){setApi(false,'Nhập Backend URL trước.');return}saveUrl();$('testApi').disabled=true;$('testApi').textContent='Testing...';try{const r=await fetch(u+'/health',{method:'GET'});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();setApi(true,'Kết nối thành công · '+u+' · '+JSON.stringify(d))}catch(e){setApi(false,'Không kết nối được: '+e.message+'. Kiểm tra URL, Render service và CORS.')}finally{$('testApi').disabled=false;$('testApi').textContent='Test connection'}};
+const stored=localStorage.getItem('nameLabBackend');if(stored)$('backendUrl').value=stored;
+function pick(s){return s[Math.floor(Math.random()*s.length)]}
+function make(kind,style){if(kind==='word')return pick(WORDS)+(style==='digits'?String(Math.floor(Math.random()*90+10)):'');let n=kind==='3l'?3:kind==='4l'?4:kind==='3c'?3:4;let pool=kind.endsWith('l')||style==='letters'?LETTERS:ALNUM;let s=Array.from({length:n},()=>pick(pool)).join('');if(style==='symbols'&&n>=3)s=s.slice(0,2)+(Math.random()<.5?'_':'.')+s.slice(2);return s}
+$('generate').onclick=()=>{const kinds=[...document.querySelectorAll('.kind:checked')].map(x=>x.value);if(!kinds.length){alert('Chọn ít nhất một định dạng.');return}const n=Math.max(1,Math.min(500,Number($('amount').value)||100)),style=$('style').value,prefix=$('prefix').value.trim();let set=new Set(),i=0;while(set.size<n&&i<n*30){set.add(prefix+make(pick(kinds),style));i++}generated=[...set];$('names').value=generated.join('\n');$('genCount').textContent=generated.length;results=[];$('validCount').textContent='—';$('unknownCount').textContent='—';$('summary').textContent='Đã tạo '+generated.length+' username. Chọn Check via backend để kiểm tra định dạng.'};
+function localValid(n,p){if(p==='discord')return /^[a-z0-9._]{2,32}$/.test(n);if(p==='tiktok')return /^[A-Za-z0-9._]{2,24}$/.test(n);return /^[A-Za-z0-9._-]{2,32}$/.test(n)}
+function showResults(){const filter=$('filter').value;const shown=results.filter(x=>filter==='all'||(filter==='valid'&&x.format==='VALID')||(filter==='invalid'&&x.format==='INVALID')||(filter==='unknown'&&x.availability==='UNKNOWN'));$('allResults').hidden=!shown.length;$('allResults').innerHTML=shown.map(x=>`<div class="item"><span>${esc(x.username)}</span><span class="pill ${x.format==='VALID'?'valid':'invalid'}">${x.format||'UNKNOWN'}</span><span class="pill unknown">${x.availability||'UNKNOWN'}</span></div>`).join('');$('summary').textContent=`${results.length} total · ${results.filter(x=>x.format==='VALID').length} valid format · ${results.filter(x=>x.format==='INVALID').length} invalid · availability unknown unless verified by an approved source.`}
+$('filter').onchange=showResults;
+function currentNames(){return [...new Set($('names').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean))]}
+$('localCheck').onclick=()=>{const ns=currentNames();if(!ns.length){$('checkMessage').textContent='Nhập username trước.';return}const p=$('platform').value;results=ns.map(username=>({username,format:localValid(username,p)?'VALID':'INVALID',availability:'UNKNOWN'}));$('checkMessage').className='status ok';$('checkMessage').textContent='Đã kiểm tra cú pháp cục bộ. Availability = UNKNOWN.';updateStats();showResults()};
+$('checkNames').onclick=async()=>{const ns=currentNames();if(!ns.length){$('checkMessage').textContent='Nhập username trước.';return}const u=backend();if(!u){$('checkMessage').className='status err';$('checkMessage').textContent='Chưa cấu hình Backend URL.';return}$('checkNames').disabled=true;$('checkNames').textContent='Checking...';try{const r=await fetch(u+'/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({platform:$('platform').value,usernames:ns})});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();results=(d.results||[]).map(x=>({username:x.username,format:x.format||'UNKNOWN',availability:x.availability||'UNKNOWN'}));$('checkMessage').className='status ok';$('checkMessage').textContent='Backend trả về '+results.length+' kết quả.';updateStats();showResults()}catch(e){$('checkMessage').className='status err';$('checkMessage').textContent='Lỗi API: '+e.message+'. Thử Local format check hoặc kiểm tra URL.'}finally{$('checkNames').disabled=false;$('checkNames').textContent='Check via backend'}};
+function updateStats(){$('validCount').textContent=results.filter(x=>x.format==='VALID').length;$('unknownCount').textContent=results.filter(x=>x.availability==='UNKNOWN').length}
+$('namesFile').onchange=async e=>{if(e.target.files[0])$('names').value=await e.target.files[0].text()};
+$('clearNames').onclick=()=>{$('names').value='';results=[];updateStats();$('nameResults').hidden=true;$('allResults').hidden=true;$('summary').textContent='Đã xóa.';$('checkMessage').textContent='Chưa có dữ liệu.'};
+$('copyNames').onclick=()=>copyText($('names').value);
+$('exportNames').onclick=()=>download($('names').value,'name-lab-usernames.txt','text/plain');
+function proxyLines(){return [...new Set($('proxies').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean))]}
+function proxySyntax(s){return /^(?:(?:https?|socks5):\/\/)?(?:[^:@\s]+(?::[^@\s]*)?@)?(?:\[[0-9a-fA-F:]+\]|[a-zA-Z0-9.-]+):\d{1,5}$/.test(s)}
+$('parseProxy').onclick=()=>{const ps=proxyLines(),ok=ps.filter(proxySyntax),bad=ps.filter(x=>!proxySyntax(x));$('proxyMessage').className='status '+(bad.length?'warn':'ok');$('proxyMessage').textContent=`${ps.length} dòng · ${ok.length} cú pháp hợp lệ · ${bad.length} cú pháp không hợp lệ. Đây không phải kiểm tra proxy sống.`};
+$('proxyFile').onchange=async e=>{if(e.target.files[0]){$('proxies').value=await e.target.files[0].text();$('proxyMessage').textContent='Đã import '+proxyLines().length+' dòng proxy.'}};
+$('exportProxy').onclick=()=>download($('proxies').value,'proxy-list.txt','text/plain');
+$('clearProxy').onclick=()=>{$('proxies').value='';$('proxyMessage').textContent='Đã xóa danh sách.'};
+$('exportResults').onclick=()=>{const type=$('exportType').value;const arr=results.filter(x=>type==='all'||(type==='valid'&&x.format==='VALID')||(type==='invalid'&&x.format==='INVALID'));const csv='username,format,availability\n'+arr.map(x=>[x.username,x.format,x.availability].map(csvCell).join(',')).join('\n');download(csv,'name-lab-results.csv','text/csv')};
+$('copyResults').onclick=()=>copyText(results.filter(x=>{const f=$('filter').value;return f==='all'||(f==='valid'&&x.format==='VALID')||(f==='invalid'&&x.format==='INVALID')||(f==='unknown'&&x.availability==='UNKNOWN')}).map(x=>`${x.username}\t${x.format}\t${x.availability}`).join('\n'));
+function csvCell(s){return '"'+String(s??'').replace(/"/g,'""')+'"'}function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function download(s,n,t){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([s],{type:t}));a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
+async function copyText(s){try{await navigator.clipboard.writeText(s);$('summary').textContent='Đã copy vào clipboard.'}catch{$('summary').textContent='Không copy được tự động; hãy chọn và copy thủ công.'}}
+</script></body></html>
